@@ -72,6 +72,7 @@ function getLastRead() {
 // ---- Views ----
 
 async function renderDaftar() {
+  app.className = "view-daftar";
   activeRender = renderDaftar;
   pesanMuat();
   try {
@@ -96,8 +97,9 @@ async function renderDaftar() {
       kartu.href = "#/surat/" + s.nomor;
       kartu.appendChild(el("span", "badge", String(s.nomor)));
       kartu.appendChild(el("span", "nama-latin", s.namaLatin));
-      kartu.appendChild(el("span", "arti", s.arti));
-      kartu.appendChild(el("span", "jumlah", s.jumlahAyat + " ayat"));
+      const info = el("span", "info");
+      info.append(el("span", "arti", s.arti), el("span", "jumlah", s.jumlahAyat + " ayat"));
+      kartu.appendChild(info);
       const nama = el("span", "nama", s.nama);
       nama.setAttribute("dir", "rtl");
       nama.setAttribute("lang", "ar");
@@ -119,6 +121,7 @@ function renderSuratTidakDitemukan() {
 }
 
 async function renderSurat(n, ayat) {
+  app.className = "view-surat";
   currentSuratNomor = null;
   if (!Number.isInteger(n) || n < 1 || n > 114) {
     renderSuratTidakDitemukan();
@@ -223,6 +226,7 @@ async function renderSurat(n, ayat) {
 }
 
 function renderBookmark() {
+  app.className = "view-bookmark";
   activeRender = renderBookmark;
   const list = getBookmarks();
   if (list.length === 0) {
