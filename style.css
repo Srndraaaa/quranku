@@ -1,0 +1,307 @@
+:root {
+  --bg: #faf7f2;
+  --fg: #24201b;
+  --muted: #6f675d;
+  --border: #ddd4c7;
+  --card: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16151a;
+    --fg: #ece8e1;
+    --muted: #a49c92;
+    --border: #37343c;
+    --card: #1f1e25;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+}
+
+main {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 1rem 1rem 3rem;
+}
+
+a {
+  color: inherit;
+}
+
+/* Header situs */
+.site-header {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.site-header .brand {
+  font-weight: 700;
+  font-size: 1.15rem;
+  text-decoration: none;
+}
+
+.site-header nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.site-header nav a {
+  text-decoration: none;
+  color: var(--muted);
+}
+
+.site-header nav a:hover {
+  color: var(--fg);
+}
+
+/* Pesan & error */
+.pesan {
+  color: var(--muted);
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.pesan.error {
+  color: #c0392b;
+}
+
+@media (prefers-color-scheme: dark) {
+  .pesan.error {
+    color: #ff8a7a;
+  }
+}
+
+/* Tombol */
+.tombol {
+  display: inline-block;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--fg);
+  font: inherit;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.tombol:hover {
+  border-color: var(--fg);
+}
+
+/* Banner lanjutkan membaca */
+.lanjutkan {
+  margin-bottom: 1rem;
+}
+
+.lanjutkan .tombol {
+  display: block;
+  text-align: center;
+  background: var(--card);
+}
+
+/* Daftar surat */
+.daftar {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.kartu {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    "badge nama arab"
+    "badge info info";
+  gap: 0.1rem 0.75rem;
+  align-items: center;
+  padding: 0.75rem 0.9rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.kartu:hover {
+  border-color: var(--fg);
+}
+
+.badge {
+  grid-area: badge;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.nama-latin {
+  grid-area: nama;
+  font-weight: 600;
+}
+
+.nama {
+  grid-area: arab;
+  font-family: Amiri, "Scheherazade New", "Traditional Arabic", serif;
+  font-size: 1.4rem;
+}
+
+.kartu .arti,
+.kartu .jumlah {
+  grid-area: info;
+  display: inline;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.kartu .arti::after {
+  content: " · ";
+}
+
+/* Kartu bookmark */
+.kartu.bookmark {
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "teks hapus";
+  align-items: center;
+}
+
+.kartu.bookmark a {
+  grid-area: teks;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.kartu.bookmark .tombol {
+  grid-area: hapus;
+}
+
+/* Header surat */
+.surat-header {
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+}
+
+.surat-header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.6rem;
+}
+
+.surat-header .sub {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.surat-header .deskripsi {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* Ayat */
+.ayat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1rem 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.arab {
+  font-family: Amiri, "Scheherazade New", "Traditional Arabic", serif;
+  font-size: 1.8rem;
+  line-height: 2.2;
+  text-align: right;
+  margin: 0 0 0.75rem;
+}
+
+.latin {
+  color: var(--muted);
+  font-style: italic;
+  margin: 0 0 0.5rem;
+}
+
+.terjemah {
+  margin: 0 0 0.75rem;
+}
+
+.aksi {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border);
+  padding-top: 0.6rem;
+}
+
+/* Navigasi surat */
+.surat-nav {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.surat-nav a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.surat-nav a:hover {
+  color: var(--fg);
+}
+
+/* Dialog tafsir */
+#tafsir-dialog {
+  width: min(40rem, calc(100vw - 2rem));
+  max-height: 85vh;
+  overflow: auto;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+#tafsir-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+#tafsir-judul {
+  margin: 0 0 0.75rem;
+  font-size: 1.15rem;
+}
+
+#tafsir-isi {
+  margin: 0 0 1rem;
+}
+
+#tafsir-tutup {
+  display: block;
+  margin-left: auto;
+}
+
+.pre-line {
+  white-space: pre-line;
+}

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Al-Quran Reader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#/">Al-Quran Reader</a>
+    <nav>
+      <a href="#/">Daftar Surat</a>
+      <a href="#/bookmark">Bookmark</a>
+    </nav>
+  </header>
+
+  <main id="app"></main>
+
+  <dialog id="tafsir-dialog">
+    <h2 id="tafsir-judul"></h2>
+    <p id="tafsir-isi" class="pre-line"></p>
+    <button type="button" id="tafsir-tutup">Tutup</button>
+  </dialog>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
