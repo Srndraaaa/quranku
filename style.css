@@ -8,18 +8,38 @@
   --gap-ayat: 1.25rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #16151a;
-    --fg: #ece8e1;
-    --muted: #a49c92;
-    --border: #37343c;
-    --card: #1f1e25;
-  }
+:root[data-theme="dark"] {
+  --bg: #16151a;
+  --fg: #ece8e1;
+  --muted: #a49c92;
+  --border: #37343c;
+  --card: #1f1e25;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* .kartu memakai display:grid sehingga UA [hidden] kalah spesifisitas */
+[hidden] {
+  display: none !important;
+}
+
+/*
+ * Transisi tema: variabel warna didaftarkan (@property) agar bisa
+ * diinterpolasi, lalu CUKUP :root yang dianimasikan — seluruh keturunan
+ * mengikuti nilai var() yang sedang berjalan. Hasilnya ~5 animasi, bukan
+ * ratusan transisi serentak per elemen (yang membuat frame drop).
+ * Browser tanpa @property hanya kehilangan efek halus ini; tema tetap ganti.
+ */
+@property --bg { syntax: "<color>"; inherits: true; initial-value: #faf7f2; }
+@property --fg { syntax: "<color>"; inherits: true; initial-value: #24201b; }
+@property --muted { syntax: "<color>"; inherits: true; initial-value: #6f675d; }
+@property --border { syntax: "<color>"; inherits: true; initial-value: #ddd4c7; }
+@property --card { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
+
+:root {
+  transition: --bg 0.25s ease, --fg 0.25s ease, --muted 0.25s ease, --border 0.25s ease, --card 0.25s ease;
 }
 
 body {
@@ -82,6 +102,52 @@ a {
   color: var(--fg);
 }
 
+/* Wrapper nav + tombol tema */
+.header-aksi {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+#tombol-tema {
+  display: inline-grid;
+  place-items: center;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--muted);
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+
+#tombol-tema:hover {
+  color: var(--fg);
+}
+
+/*
+ * Ikon tema: kedua span bertumpuk di sel grid yang sama, jadi kotak tombol
+ * (dan header) tidak bergeser saat ikon berganti.
+ */
+.ikon {
+  grid-area: 1 / 1;
+  transition: opacity 0.25s ease, transform 0.25s ease, color 0.25s ease;
+}
+
+html[data-theme="light"] .ikon-bulan,
+html[data-theme="dark"] .ikon-matahari {
+  opacity: 1;
+  transform: none;
+}
+
+html[data-theme="light"] .ikon-matahari,
+html[data-theme="dark"] .ikon-bulan {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.6);
+}
+
 /* Pesan & error */
 .pesan {
   color: var(--muted);
@@ -91,12 +157,38 @@ a {
 
 .pesan.error {
   color: #c0392b;
+  /* warnanya literal (bukan var terdaftar), jadi dianimasikan sendiri */
+  transition: color 0.25s ease;
 }
 
-@media (prefers-color-scheme: dark) {
-  .pesan.error {
-    color: #ff8a7a;
-  }
+:root[data-theme="dark"] .pesan.error {
+  color: #ff8a7a;
+}
+
+/* Pencarian surat */
+.cari {
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--fg);
+  font: inherit;
+}
+
+.cari::placeholder {
+  color: var(--muted);
+}
+
+.cari:focus {
+  outline: none;
+  border-color: var(--fg);
+}
+
+.cari-kosong {
+  display: block;
+  padding: 1.5rem 0;
 }
 
 /* Tombol */
@@ -327,4 +419,11 @@ a {
 
 .pre-line {
   white-space: pre-line;
+}
+
+/* Hormati preferensi gerak minimal: matikan semua transisi (termasuk .ikon) */
+@media (prefers-reduced-motion: reduce) {
+  :where(html, body, body *) {
+    transition: none !important;
+  }
 }

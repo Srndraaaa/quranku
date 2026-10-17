@@ -69,6 +69,41 @@ function getLastRead() {
   }
 }
 
+// ---- Tema (default terang, pilihan disimpan di quran:tema) ----
+
+const tombolTema = document.getElementById("tombol-tema");
+
+function getTema() {
+  try {
+    return localStorage.getItem("quran:tema") === "dark" ? "dark" : "light";
+  } catch (e) {
+    return "light";
+  }
+}
+
+function saveTema(tema) {
+  try {
+    localStorage.setItem("quran:tema", tema);
+  } catch (e) {
+    // localStorage penuh/privasi-mode → abaikan, tema tetap berlaku di sesi ini
+  }
+}
+
+function terapkanTema(tema) {
+  const gelap = tema === "dark";
+  document.documentElement.dataset.theme = gelap ? "dark" : "light";
+  tombolTema.setAttribute("aria-label", gelap ? "Aktifkan mode terang" : "Aktifkan mode gelap");
+  tombolTema.setAttribute("aria-pressed", gelap ? "true" : "false");
+}
+
+terapkanTema(getTema());
+
+tombolTema.addEventListener("click", function () {
+  const tema = getTema() === "dark" ? "light" : "dark";
+  saveTema(tema);
+  terapkanTema(tema);
+});
+
 // ---- Views ----
 
 async function renderDaftar() {
@@ -83,6 +118,14 @@ async function renderDaftar() {
       surahList = data.data;
     }
     const frag = document.createDocumentFragment();
+    const cari = document.createElement("input");
+    cari.type = "search";
+    cari.id = "cari-surat";
+    cari.className = "cari";
+    cari.placeholder = "Cari surat…";
+    cari.autocomplete = "off";
+    cari.setAttribute("aria-label", "Cari surat");
+    frag.appendChild(cari);
     const last = getLastRead();
     if (last && last.nomor && last.nomorAyat) {
       const lanjut = el("div", "lanjutkan");
@@ -92,6 +135,7 @@ async function renderDaftar() {
       frag.appendChild(lanjut);
     }
     const daftar = el("div", "daftar");
+    const baris = [];
     for (const s of surahList) {
       const kartu = el("a", "kartu");
       kartu.href = "#/surat/" + s.nomor;
@@ -105,8 +149,26 @@ async function renderDaftar() {
       nama.setAttribute("lang", "ar");
       kartu.appendChild(nama);
       daftar.appendChild(kartu);
+      baris.push({ kartu: kartu, teks: (s.namaLatin + " " + s.arti + " " + s.nama + " " + s.nomor).toLowerCase() });
     }
     frag.appendChild(daftar);
+
+    const kosong = el("p", "cari-kosong pesan", "Tidak ada surat yang cocok.");
+    kosong.hidden = true;
+    frag.appendChild(kosong);
+
+    // Hide baris per baris (bukan re-render) supaya fokus input tidak hilang.
+    cari.addEventListener("input", function () {
+      const q = cari.value.trim().toLowerCase();
+      let terlihat = 0;
+      for (const b of baris) {
+        const cocok = q === "" || b.teks.indexOf(q) !== -1;
+        b.kartu.hidden = !cocok;
+        if (cocok) terlihat++;
+      }
+      kosong.hidden = terlihat > 0;
+    });
+
     app.replaceChildren(frag);
   } catch (e) {
     pesanError();
