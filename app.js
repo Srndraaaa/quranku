@@ -310,6 +310,269 @@ function renderBookmark() {
   app.replaceChildren(daftar);
 }
 
+// ---- Tasbih ----
+
+const DZIKIR = [
+  { arab: "سُبْحَانَ اللّٰهِ", latin: "Subhanallah", arti: "Maha Suci Allah", target: 33 },
+  { arab: "اَلْحَمْدُ لِلّٰهِ", latin: "Alhamdulillah", arti: "Segala puji bagi Allah", target: 33 },
+  { arab: "اَللّٰهُ أَكْبَرُ", latin: "Allahu Akbar", arti: "Allah Maha Besar", target: 34 },
+  { arab: "لَا إِلٰهَ إِلَّا اللّٰهُ", latin: "La ilaha illallah", arti: "Tiada tuhan selain Allah", target: 100 }
+];
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+const TASBIH_R = 54;
+const TASBIH_KELILING = 2 * Math.PI * TASBIH_R;
+
+let tasbih = null;       // state hitungan aktif
+let tasbihView = null;   // referensi elemen view (untuk pembaruan tanpa rebuild)
+let tasbihSelesai = false;
+
+function defaultTasbih() {
+  return { dzikir: 0, hitung: 0, target: DZIKIR[0].target, total: [0, 0, 0, 0] };
+}
+
+function getTasbih() {
+  try {
+    const p = JSON.parse(localStorage.getItem("quran:tasbih"));
+    if (!p || typeof p !== "object") return defaultTasbih();
+    const dzikir = Number.isInteger(p.dzikir) && p.dzikir >= 0 && p.dzikir < DZIKIR.length ? p.dzikir : 0;
+    const totalOk = Array.isArray(p.total) && p.total.length === DZIKIR.length &&
+      p.total.every(function (t) { return Number.isInteger(t) && t >= 0; });
+    return {
+      dzikir: dzikir,
+      hitung: Number.isInteger(p.hitung) && p.hitung >= 0 ? p.hitung : 0,
+      target: Number.isInteger(p.target) && p.target >= 1 ? p.target : DZIKIR[dzikir].target,
+      total: totalOk ? p.total.slice() : [0, 0, 0, 0]
+    };
+  } catch (e) {
+    return defaultTasbih();
+  }
+}
+
+function saveTasbih(s) {
+  try {
+    localStorage.setItem("quran:tasbih", JSON.stringify({ dzikir: s.dzikir, hitung: s.hitung, target: s.target, total: s.total }));
+  } catch (e) {
+    // localStorage penuh/privasi-mode → abaikan, hitungan tetap jalan di sesi ini
+  }
+}
+
+function getar(pola) {
+  try {
+    navigator.vibrate?.(pola);
+  } catch (e) {
+    // iOS/tanpa dukungan getar → abaikan
+  }
+}
+
+// Animasi perayaan singkat; class dilepas dulu supaya animasi bisa dijalankan ulang.
+function rayakanTasbih(ui) {
+  ui.tombol.classList.remove("rayakan");
+  void ui.tombol.offsetWidth;
+  ui.tombol.classList.add("rayakan");
+}
+
+function gambarTasbih() {
+  if (!tasbihView) return;
+  const ui = tasbihView;
+  const selesai = tasbih.hitung >= tasbih.target;
+
+  ui.root.classList.toggle("selesai", selesai);
+  ui.hitung.textContent = String(tasbih.hitung);
+  ui.target.textContent = tasbih.hitung + " / " + tasbih.target;
+  ui.ring.style.strokeDashoffset = String(TASBIH_KELILING * (1 - Math.min(tasbih.hitung / tasbih.target, 1)));
+  ui.pesan.hidden = !selesai;
+  ui.lanjut.hidden = !selesai;
+  ui.lanjut.textContent = "Lanjut: " + DZIKIR[(tasbih.dzikir + 1) % DZIKIR.length].latin;
+  ui.total.textContent = "Total: " + tasbih.total[tasbih.dzikir] + " · Semua dzikir: " +
+    tasbih.total.reduce(function (a, b) { return a + b; }, 0);
+  ui.tombolDzikir.forEach(function (b, i) {
+    b.classList.toggle("aktif", i === tasbih.dzikir);
+    b.setAttribute("aria-pressed", i === tasbih.dzikir ? "true" : "false");
+  });
+  if (document.activeElement !== ui.input) ui.input.value = String(tasbih.target);
+
+  if (selesai && !tasbihSelesai) {
+    getar([30, 50, 30]); // sekali per pencapaian
+    rayakanTasbih(ui);
+  }
+  tasbihSelesai = selesai;
+}
+
+function renderTasbih() {
+  app.className = "view-tasbih";
+  tasbih = getTasbih();
+  tasbihSelesai = tasbih.hitung >= tasbih.target;
+
+  const root = el("div", "tasbih");
+
+  const grup = el("div", "tasbih-dzikir");
+  grup.setAttribute("role", "group");
+  grup.setAttribute("aria-label", "Pilih dzikir");
+  const tombolDzikir = DZIKIR.map(function (d, i) {
+    const b = el("button", "dzikir");
+    b.type = "button";
+    b.setAttribute("data-dzikir", String(i));
+    const arab = el("span", "dzikir-arab", d.arab);
+    arab.setAttribute("dir", "rtl");
+    arab.setAttribute("lang", "ar");
+    b.append(arab, el("span", "dzikir-latin", d.latin), el("span", "dzikir-arti", d.arti));
+    grup.appendChild(b);
+    return b;
+  });
+
+  const panggung = el("div", "tasbih-panggung");
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("class", "tasbih-ring");
+  svg.setAttribute("viewBox", "0 0 120 120");
+  svg.setAttribute("aria-hidden", "true");
+  const lingkar = function (cls) {
+    const c = document.createElementNS(SVG_NS, "circle");
+    c.setAttribute("class", cls);
+    c.setAttribute("cx", "60");
+    c.setAttribute("cy", "60");
+    c.setAttribute("r", String(TASBIH_R));
+    return c;
+  };
+  const ring = lingkar("ring-isi");
+  ring.style.strokeDasharray = String(TASBIH_KELILING);
+  svg.append(lingkar("ring-latar"), ring);
+
+  const tombolHitung = el("button", "tasbih-tombol");
+  tombolHitung.type = "button";
+  tombolHitung.setAttribute("aria-label", "Tambah hitungan");
+  const hitung = el("span", "tasbih-hitung");
+  hitung.setAttribute("role", "status");
+  hitung.setAttribute("aria-live", "polite");
+  const target = el("span", "tasbih-target");
+  tombolHitung.append(hitung, target);
+  tombolHitung.addEventListener("animationend", function () {
+    tombolHitung.classList.remove("rayakan");
+  });
+  panggung.append(svg, tombolHitung);
+
+  const pesan = el("p", "tasbih-pesan", "Target tercapai");
+  pesan.setAttribute("role", "status");
+  pesan.setAttribute("aria-live", "polite");
+  pesan.hidden = true;
+
+  const aksi = el("div", "tasbih-aksi");
+  const lanjut = tombol("Lanjut");
+  lanjut.setAttribute("data-tasbih-lanjut", "");
+  lanjut.hidden = true;
+  const reset = tombol("Reset");
+  reset.setAttribute("data-tasbih-reset", "");
+  const baris = el("label", "tasbih-target-baris", "Target");
+  const input = el("input", "tasbih-target-input");
+  input.type = "number";
+  input.id = "tasbih-target";
+  input.setAttribute("min", "1");
+  input.setAttribute("step", "1");
+  input.setAttribute("inputmode", "numeric");
+  input.setAttribute("aria-label", "Target hitungan");
+  baris.appendChild(input);
+  const hapus = tombol("Hapus total");
+  hapus.setAttribute("data-tasbih-hapus-total", "");
+  aksi.append(lanjut, reset, baris, hapus);
+
+  const total = el("p", "tasbih-total");
+
+  root.append(grup, panggung, pesan, aksi, total);
+  app.replaceChildren(root);
+
+  tasbihView = {
+    root: root, hitung: hitung, target: target, ring: ring, pesan: pesan,
+    lanjut: lanjut, input: input, total: total, tombolDzikir: tombolDzikir,
+    tombol: tombolHitung
+  };
+
+  root.addEventListener("click", function (e) {
+    if (e.target.closest(".tasbih-tombol")) {
+      hitungTasbih();
+      return;
+    }
+    if (e.target.closest("[data-tasbih-lanjut]")) {
+      lanjutTasbih();
+      return;
+    }
+    const btn = e.target.closest("[data-dzikir]");
+    if (btn) {
+      pilihDzikir(parseInt(btn.getAttribute("data-dzikir"), 10));
+      return;
+    }
+    if (e.target.closest("[data-tasbih-reset]")) {
+      tasbih.hitung = 0;
+      saveTasbih(tasbih);
+      gambarTasbih();
+      return;
+    }
+    if (e.target.closest("[data-tasbih-hapus-total]")) {
+      tasbih.total = [0, 0, 0, 0];
+      tasbih.hitung = 0;
+      saveTasbih(tasbih);
+      gambarTasbih();
+    }
+  });
+
+  function terapkanTarget() {
+    const v = parseInt(input.value, 10);
+    if (Number.isInteger(v) && v >= 1) {
+      tasbih.target = v;
+      saveTasbih(tasbih);
+    }
+    gambarTasbih(); // nilai tak wajar → biarkan target lama, field kembali ke nilai tersimpan
+  }
+  input.addEventListener("input", terapkanTarget);
+  input.addEventListener("change", terapkanTarget);
+
+  gambarTasbih();
+}
+
+function pindahDzikir(hitungBaru) {
+  tasbih.dzikir = (tasbih.dzikir + 1) % DZIKIR.length;
+  tasbih.hitung = hitungBaru;
+  tasbih.target = DZIKIR[tasbih.dzikir].target;
+}
+
+function hitungTasbih() {
+  if (tasbih.hitung >= tasbih.target) {
+    // tap saat target tercapai sudah dihitung untuk dzikir berikutnya
+    pindahDzikir(1);
+  } else {
+    tasbih.hitung += 1;
+  }
+  tasbih.total[tasbih.dzikir] += 1;
+  getar(15);
+  saveTasbih(tasbih);
+  gambarTasbih();
+}
+
+function lanjutTasbih() {
+  pindahDzikir(0); // tombol Lanjut murni pindah dzikir, tanpa menambah hitungan
+  saveTasbih(tasbih);
+  gambarTasbih();
+}
+
+function pilihDzikir(i) {
+  if (!Number.isInteger(i) || i < 0 || i >= DZIKIR.length) return;
+  tasbih.dzikir = i;
+  tasbih.hitung = 0;
+  tasbih.target = DZIKIR[i].target;
+  saveTasbih(tasbih);
+  gambarTasbih();
+}
+
+document.addEventListener("keydown", function (e) {
+  if (!tasbihView || app.className !== "view-tasbih") return;
+  if (e.key !== " " && e.key !== "Enter") return;
+  // Kontrol apa pun (tautan, tombol, input) pakai aktivasi native-nya sendiri:
+  // klik hasil aktivasi itu sudah ditangani delegasi klik di atas, jadi tidak
+  // ada hitungan ganda — dan fokus di header tetap berfungsi.
+  if (e.target instanceof Element && e.target.closest("a, button, input, select, textarea")) return;
+  e.preventDefault(); // Space jangan menggulir halaman saat shortcut dipakai
+  hitungTasbih();
+});
+
 // ---- Router ----
 
 function router() {
@@ -323,6 +586,8 @@ function router() {
     renderSurat(parseInt(m[1], 10));
   } else if (hash === "#/bookmark") {
     renderBookmark();
+  } else if (hash === "#/tasbih") {
+    renderTasbih();
   } else {
     location.hash = "#/";
   }

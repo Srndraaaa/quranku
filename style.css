@@ -65,8 +65,18 @@ main {
   max-width: 60rem;
 }
 
+#app.view-tasbih {
+  max-width: 56rem;
+}
+
 a {
   color: inherit;
+}
+
+/* Fokus keyboard: outline jelas, tidak mengganggu aturan :focus yang sudah ada */
+:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
 }
 
 /* Header situs */
@@ -421,9 +431,223 @@ html[data-theme="dark"] .ikon-bulan {
   white-space: pre-line;
 }
 
+/* Tasbih (penghitung dzikir) */
+.tasbih {
+  display: grid;
+  gap: 1.25rem;
+  justify-items: center;
+}
+
+.tasbih-dzikir {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.6rem;
+  width: 100%;
+}
+
+/* Dua kolom hanya bila lebarnya cukup */
+@media (min-width: 768px) {
+  .tasbih-dzikir {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.dzikir {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.8rem 0.9rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dzikir:hover,
+.dzikir.aktif {
+  border-color: var(--fg);
+}
+
+.dzikir-arab {
+  font-family: Amiri, "Scheherazade New", "Traditional Arabic", serif;
+  font-size: 1.3rem;
+}
+
+.dzikir-latin {
+  font-weight: 600;
+}
+
+.dzikir-arti {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.tasbih-panggung {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  /* Ruang ekstra supaya cincin progres (r 0.9 x tinggi SVG) berada di luar
+     tombol — tanpa ini cincin tertutup background tombol yang opak. */
+  padding: 1.5rem;
+}
+
+/*
+ * Cincin digambar di layer panggung, menutupi area di luar lingkaran tombol.
+ * pointer-events: none wajib — kalau tidak, seluruh area panggung menelan tap.
+ */
+.tasbih-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.ring-latar,
+.ring-isi {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.ring-latar {
+  stroke: var(--border);
+}
+
+.ring-isi {
+  stroke: var(--fg);
+  /* Mulai dari atas, bukan dari jam 3 */
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: stroke-dashoffset 0.12s ease;
+}
+
+.tasbih-tombol {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: 0.15rem;
+  width: clamp(10rem, 52vw, 14rem);
+  aspect-ratio: 1;
+  padding: 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--fg);
+  font: inherit;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.25s ease, color 0.25s ease;
+}
+
+.tasbih-tombol:hover {
+  border-color: var(--fg);
+}
+
+.tasbih-tombol:active {
+  transform: scale(0.97);
+}
+
+/* Perayaan singkat saat target tercapai (halo mengembang dari tepi tombol) */
+.tasbih-tombol::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--fg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tasbih-tombol.rayakan {
+  animation: tasbih-pop 0.7s ease;
+}
+
+.tasbih-tombol.rayakan::after {
+  animation: tasbih-halo 0.7s ease;
+}
+
+@keyframes tasbih-pop {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.07); }
+  60% { transform: scale(0.99); }
+  100% { transform: scale(1); }
+}
+
+@keyframes tasbih-halo {
+  0% { opacity: 0.55; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.4); }
+}
+
+.tasbih-hitung {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.tasbih-target {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Saat target tercapai, target ikut menegas seperti cincin penuh */
+.selesai .tasbih-target {
+  color: var(--fg);
+}
+
+.tasbih-pesan {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.tasbih-aksi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.tasbih-target-baris {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.tasbih-target-input {
+  width: 5rem;
+  padding: 0.45rem 0.6rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--fg);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.tasbih-total {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  text-align: center;
+}
+
 /* Hormati preferensi gerak minimal: matikan semua transisi (termasuk .ikon) */
 @media (prefers-reduced-motion: reduce) {
   :where(html, body, body *) {
     transition: none !important;
+    animation: none !important;
   }
 }
