@@ -843,9 +843,12 @@ html[data-theme="dark"] .ikon-bulan {
   text-align: center;
 }
 
-/* Hormati preferensi gerak minimal: matikan semua transisi (termasuk .ikon) */
+/* Hormati preferensi gerak minimal: matikan semua transisi & animasi,
+   termasuk pada pseudo-element (.ikon, halo perayaan) */
 @media (prefers-reduced-motion: reduce) {
-  :where(html, body, body *) {
+  *,
+  *::before,
+  *::after {
     transition: none !important;
     animation: none !important;
   }

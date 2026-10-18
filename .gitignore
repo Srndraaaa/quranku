@@ -1,0 +1,12 @@
+# Berkas sistem operasi
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+
+# Konfigurasi harness lokal (dikeluarkan dari pelacakan: mesin-spesifik)
+WATCHDOG.yml
