@@ -17,22 +17,29 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="site-header">
-    <a class="brand" href="#/">Al-Quran Reader</a>
-    <div class="header-aksi">
-      <nav>
-        <a href="#/">Daftar Surat</a>
-        <a href="#/bookmark">Bookmark</a>
-        <a href="#/tasbih">Tasbih</a>
-      </nav>
-      <button type="button" id="tombol-tema" class="tema" aria-label="Aktifkan mode gelap" aria-pressed="false">
-        <span class="ikon ikon-bulan" aria-hidden="true">☾</span>
-        <span class="ikon ikon-matahari" aria-hidden="true">☀</span>
-      </button>
-    </div>
-  </header>
+  <div class="sampul">
+    <div class="sheet">
+      <header class="site-header">
+        <a class="brand" href="#/">Al-Quran Reader</a>
+        <div class="header-aksi">
+          <nav>
+            <a href="#/">Daftar Surat</a>
+            <a href="#/bookmark">Bookmark</a>
+            <a href="#/tasbih">Tasbih</a>
+          </nav>
+          <button type="button" id="tombol-tema" class="tema" aria-label="Aktifkan mode gelap" aria-pressed="false">
+            <span class="ikon ikon-bulan" aria-hidden="true">☾</span>
+            <span class="ikon ikon-matahari" aria-hidden="true">☀</span>
+          </button>
+        </div>
+      </header>
 
-  <main id="app"></main>
+      <main id="app"></main>
+    </div>
+    <footer class="kaki">
+      <p>Sumber data: <a href="https://equran.id" target="_blank" rel="noreferrer">equran.id</a> (Kemenag RI)</p>
+    </footer>
+  </div>
 
   <dialog id="tafsir-dialog">
     <h2 id="tafsir-judul"></h2>

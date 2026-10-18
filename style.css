@@ -1,19 +1,33 @@
 :root {
-  --bg: #faf7f2;
-  --fg: #24201b;
-  --muted: #6f675d;
-  --border: #ddd4c7;
+  --bg: #1e63e9;
+  --biru: #1e63e9;
+  --biru-tua: #1a56c4;
+  --lime: #6f9c00;
+  --di-lime: #12161c;
+  --permukaan: #ffffff;
   --card: #ffffff;
-  --pad-x: clamp(1rem, 2.75vw, 2rem);
+  --pill: #eef1f6;
+  --fg: #12161c;
+  --muted: #5a6472;
+  --garis-kontrol: #7b8794;
+  --border: #e3e8ef;
+  /* Teks di atas bidang biru: putih 5.23:1 pada --bg terang, 19:1 pada gelap */
+  --di-biru: #ffffff;
   --gap-ayat: 1.25rem;
 }
 
 :root[data-theme="dark"] {
-  --bg: #16151a;
-  --fg: #ece8e1;
-  --muted: #a49c92;
-  --border: #37343c;
-  --card: #1f1e25;
+  --lime: #c8f04a;
+  --bg: #0b111b;
+  --biru: #2f6fe0;
+  --biru-tua: #2559b8;
+  --permukaan: #141b26;
+  --card: #1a2330;
+  --pill: #222c3b;
+  --fg: #e9eef6;
+  --muted: #a3b0c2;
+  --garis-kontrol: #6d7a8c;
+  --border: #2b3546;
 }
 
 * {
@@ -27,19 +41,30 @@
 
 /*
  * Transisi tema: variabel warna didaftarkan (@property) agar bisa
- * diinterpolasi, lalu CUKUP :root yang dianimasikan — seluruh keturunan
+ * diinterpolasi, lalu CUKUP :root yang dianimasikan - seluruh keturunan
  * mengikuti nilai var() yang sedang berjalan. Hasilnya ~5 animasi, bukan
  * ratusan transisi serentak per elemen (yang membuat frame drop).
  * Browser tanpa @property hanya kehilangan efek halus ini; tema tetap ganti.
  */
-@property --bg { syntax: "<color>"; inherits: true; initial-value: #faf7f2; }
-@property --fg { syntax: "<color>"; inherits: true; initial-value: #24201b; }
-@property --muted { syntax: "<color>"; inherits: true; initial-value: #6f675d; }
-@property --border { syntax: "<color>"; inherits: true; initial-value: #ddd4c7; }
+@property --bg { syntax: "<color>"; inherits: true; initial-value: #1e63e9; }
+@property --biru { syntax: "<color>"; inherits: true; initial-value: #1e63e9; }
+@property --biru-tua { syntax: "<color>"; inherits: true; initial-value: #1a56c4; }
+@property --lime { syntax: "<color>"; inherits: true; initial-value: #6f9c00; }
+@property --di-lime { syntax: "<color>"; inherits: true; initial-value: #12161c; }
+@property --permukaan { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
 @property --card { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
+@property --pill { syntax: "<color>"; inherits: true; initial-value: #eef1f6; }
+@property --fg { syntax: "<color>"; inherits: true; initial-value: #12161c; }
+@property --muted { syntax: "<color>"; inherits: true; initial-value: #5a6472; }
+@property --garis-kontrol { syntax: "<color>"; inherits: true; initial-value: #7b8794; }
+@property --border { syntax: "<color>"; inherits: true; initial-value: #e3e8ef; }
+@property --di-biru { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
 
 :root {
-  transition: --bg 0.25s ease, --fg 0.25s ease, --muted 0.25s ease, --border 0.25s ease, --card 0.25s ease;
+  transition:
+    --bg 0.25s ease, --biru 0.25s ease, --biru-tua 0.25s ease, --lime 0.25s ease,
+    --permukaan 0.25s ease, --card 0.25s ease, --pill 0.25s ease, --fg 0.25s ease,
+    --muted 0.25s ease, --garis-kontrol 0.25s ease, --border 0.25s ease, --di-biru 0.25s ease, --di-lime 0.25s ease;
 }
 
 body {
@@ -50,10 +75,40 @@ body {
   line-height: 1.55;
 }
 
+/* Sampul biru: sheet putih membulat di tengah, kredit sumber di luarnya */
+.sampul {
+  padding: clamp(0.75rem, 2vw, 1.75rem);
+}
+
+.sheet {
+  max-width: 76rem;
+  margin-inline: auto;
+  padding: clamp(1rem, 2.5vw, 2rem);
+  background: var(--permukaan);
+  border-radius: 28px;
+}
+
+.kaki {
+  max-width: 76rem;
+  margin-inline: auto;
+  padding-top: 1rem;
+  color: var(--di-biru);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.kaki p {
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .kaki {
+    text-align: left;
+  }
+}
+
 main {
-  max-width: 68rem;
-  margin: 0 auto;
-  padding: 1.5rem var(--pad-x) 3rem;
+  margin-inline: auto;
 }
 
 /* Container lebih sempit untuk view baca & bookmark: baris tidak terlalu panjang */
@@ -79,31 +134,47 @@ a {
   outline-offset: 2px;
 }
 
-/* Header situs */
+/* Header situs - berada di dalam sheet, jadi tanpa lebar/padding sendiri */
 .site-header {
-  max-width: 72rem;
-  margin: 0 auto;
-  padding: 1rem var(--pad-x);
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 1rem;
   align-items: center;
   justify-content: space-between;
+  padding-bottom: 1rem;
   border-bottom: 1px solid var(--border);
 }
 
 .site-header .brand {
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 800;
   font-size: 1.15rem;
   text-decoration: none;
 }
 
-.site-header nav {
-  display: flex;
-  gap: 1rem;
+/* Satu-satunya pemakaian aksen limau: tanda kecil di samping wordmark */
+.brand::before {
+  content: "";
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 3px;
+  background: var(--lime);
 }
 
+.site-header nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+/* Nav = teks polos, bukan pill, tapi tetap target sentuh ≥44px */
 .site-header nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 0.9rem;
   text-decoration: none;
   color: var(--muted);
 }
@@ -123,10 +194,12 @@ a {
 #tombol-tema {
   display: inline-grid;
   place-items: center;
+  min-width: 44px;
+  min-height: 44px;
   padding: 0.25rem 0.55rem;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--card);
+  border: 1px solid var(--garis-kontrol);
+  border-radius: 12px;
+  background: var(--permukaan);
   color: var(--muted);
   font: inherit;
   line-height: 1;
@@ -175,14 +248,56 @@ html[data-theme="dark"] .ikon-bulan {
   color: #ff8a7a;
 }
 
+/* Hero (view daftar) */
+.hero {
+  margin-bottom: 1.5rem;
+}
+
+.hero-judul {
+  margin: 0 0 0.5rem;
+  font-size: clamp(2rem, 1.4rem + 3vw, 3.25rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.hero-sub {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--muted);
+}
+
+/* Kepala section */
+.seksi-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.9rem;
+}
+
+.seksi-judul {
+  margin: 0;
+  font-size: clamp(1.25rem, 1.1rem + 0.8vw, 1.6rem);
+  font-weight: 800;
+}
+
+.seksi-meta {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
 /* Pencarian surat */
 .cari {
   width: 100%;
+  min-height: 44px;
   padding: 0.6rem 0.9rem;
   margin-bottom: 0.9rem;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--card);
+  border: 1px solid var(--garis-kontrol);
+  border-radius: 12px;
+  background: var(--pill);
   color: var(--fg);
   font: inherit;
 }
@@ -202,12 +317,16 @@ html[data-theme="dark"] .ikon-bulan {
 }
 
 /* Tombol */
-.tombol {
-  display: inline-block;
-  padding: 0.45rem 0.9rem;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--card);
+.tombol,
+#tafsir-tutup {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--garis-kontrol);
+  border-radius: 12px;
+  background: var(--pill);
   color: var(--fg);
   font: inherit;
   font-size: 0.9rem;
@@ -215,8 +334,28 @@ html[data-theme="dark"] .ikon-bulan {
   cursor: pointer;
 }
 
-.tombol:hover {
+.tombol:hover,
+#tafsir-tutup:hover {
   border-color: var(--fg);
+}
+
+/* Aksi utama: "Coba lagi" (error), "Lanjut" (tasbih), banner lanjut-baca */
+.tombol.utama,
+[data-coba-lagi],
+[data-tasbih-lanjut],
+.lanjutkan .tombol {
+  border-color: var(--biru);
+  background: var(--biru);
+  color: var(--di-biru);
+  font-weight: 600;
+}
+
+.tombol.utama:hover,
+[data-coba-lagi]:hover,
+[data-tasbih-lanjut]:hover,
+.lanjutkan .tombol:hover {
+  border-color: var(--biru-tua);
+  background: var(--biru-tua);
 }
 
 /* Banner lanjutkan membaca */
@@ -225,9 +364,8 @@ html[data-theme="dark"] .ikon-bulan {
 }
 
 .lanjutkan .tombol {
-  display: block;
-  text-align: center;
-  background: var(--card);
+  display: flex;
+  width: 100%;
 }
 
 /* Daftar surat */
@@ -252,11 +390,13 @@ html[data-theme="dark"] .ikon-bulan {
     "badge nama arab"
     "badge info info";
   gap: 0.1rem 0.75rem;
+  /* Kata panjang boleh pecah hanya saat ruang benar-benar sempit (mis. teks di-zoom 200%) */
+  overflow-wrap: anywhere;
   align-items: center;
-  padding: 0.7rem 0.9rem;
+  padding: 0.85rem 1rem;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 16px;
   text-decoration: none;
   color: inherit;
 }
@@ -272,10 +412,11 @@ html[data-theme="dark"] .ikon-bulan {
   justify-content: center;
   width: 2.2rem;
   height: 2.2rem;
-  border-radius: 50%;
-  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--biru);
+  color: var(--di-biru);
   font-size: 0.85rem;
-  color: var(--muted);
+  font-weight: 600;
 }
 
 .nama-latin {
@@ -298,8 +439,31 @@ html[data-theme="dark"] .ikon-bulan {
   color: var(--muted);
 }
 
+.kartu .jumlah {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.55rem;
+  margin-left: 0.35rem;
+  border-radius: 999px;
+  background: var(--pill);
+  color: var(--fg);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
 .kartu .arti::after {
   content: " · ";
+}
+
+/* Status nyata (surat terakhir dibaca): warna + label teks, bukan warna saja */
+.kartu .terakhir {
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--lime);
+  color: var(--di-lime);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 /* Kartu bookmark */
@@ -322,13 +486,16 @@ html[data-theme="dark"] .ikon-bulan {
 /* Header surat */
 .surat-header {
   margin-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 1rem;
+  padding: 1.25rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
 }
 
 .surat-header h1 {
   margin: 0 0 0.25rem;
   font-size: 1.6rem;
+  font-weight: 800;
 }
 
 .surat-header .sub {
@@ -346,7 +513,7 @@ html[data-theme="dark"] .ikon-bulan {
 .ayat {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 13px;
+  border-radius: 16px;
   padding: 1.4rem 1.5rem;
   margin-bottom: var(--gap-ayat);
 }
@@ -354,7 +521,7 @@ html[data-theme="dark"] .ikon-bulan {
 /* Arab paling dominan, terjemahan normal, latin paling subtle */
 .arab {
   font-family: Amiri, "Scheherazade New", "Traditional Arabic", serif;
-  font-size: clamp(1.75rem, 1.35rem + 1.3vw, 2.1rem);
+  font-size: clamp(2rem, 1.6rem + 1.3vw, 2.4rem);
   line-height: 2.15;
   text-align: right;
   margin: 0 0 0.75rem;
@@ -389,6 +556,10 @@ html[data-theme="dark"] .ikon-bulan {
 }
 
 .surat-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.25rem;
   color: var(--muted);
   text-decoration: none;
 }
@@ -404,8 +575,8 @@ html[data-theme="dark"] .ikon-bulan {
   overflow: auto;
   padding: 1.25rem;
   border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--bg);
+  border-radius: 16px;
+  background: var(--permukaan);
   color: var(--fg);
 }
 
@@ -431,9 +602,19 @@ html[data-theme="dark"] .ikon-bulan {
   white-space: pre-line;
 }
 
+/* Blok biru: panel berisi kartu putih (mis. grup dzikir) */
+.blok-biru {
+  width: 100%;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  background: var(--biru);
+  color: var(--di-biru);
+  border-radius: 24px;
+}
+
 /* Tasbih (penghitung dzikir) */
 .tasbih {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.25rem;
   justify-items: center;
 }
@@ -455,17 +636,24 @@ html[data-theme="dark"] .ikon-bulan {
 .dzikir {
   display: grid;
   gap: 0.15rem;
+  min-height: 44px;
+  overflow-wrap: anywhere;
   padding: 0.8rem 0.9rem;
   background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  /* 2px di kedua state supaya penanda aktif tidak menggeser tata letak */
+  border: 2px solid var(--border);
+  border-radius: 16px;
   font: inherit;
-  color: inherit;
+  color: var(--fg);
   text-align: left;
   cursor: pointer;
 }
 
-.dzikir:hover,
+.dzikir:hover {
+  border-color: var(--fg);
+}
+
+/* Biru tidak terbaca di atas .blok-biru; tinta 18:1 pada kartu putih */
 .dzikir.aktif {
   border-color: var(--fg);
 }
@@ -490,13 +678,13 @@ html[data-theme="dark"] .ikon-bulan {
   place-items: center;
   width: 100%;
   /* Ruang ekstra supaya cincin progres (r 0.9 x tinggi SVG) berada di luar
-     tombol — tanpa ini cincin tertutup background tombol yang opak. */
+     tombol - tanpa ini cincin tertutup background tombol yang opak. */
   padding: 1.5rem;
 }
 
 /*
  * Cincin digambar di layer panggung, menutupi area di luar lingkaran tombol.
- * pointer-events: none wajib — kalau tidak, seluruh area panggung menelan tap.
+ * pointer-events: none wajib - kalau tidak, seluruh area panggung menelan tap.
  */
 .tasbih-ring {
   position: absolute;
@@ -530,7 +718,8 @@ html[data-theme="dark"] .ikon-bulan {
   display: grid;
   place-items: center;
   gap: 0.15rem;
-  width: clamp(10rem, 52vw, 14rem);
+  /* Tanpa lantai rem: saat teks di-zoom, 10rem akan melebihi kolom */
+  width: min(52vw, 14rem);
   aspect-ratio: 1;
   padding: 1rem;
   background: var(--card);
@@ -601,6 +790,15 @@ html[data-theme="dark"] .ikon-bulan {
   color: var(--fg);
 }
 
+/* Di dalam blok biru, teks sekunder pakai teks putih - --muted gagal kontras di atas biru */
+.blok-biru .tasbih-pesan,
+.blok-biru .tasbih-total,
+.blok-biru .tasbih-target-baris,
+.blok-biru .tasbih-target,
+.blok-biru .selesai .tasbih-target {
+  color: var(--di-biru);
+}
+
 .tasbih-pesan {
   margin: 0;
   font-size: 0.9rem;
@@ -627,10 +825,11 @@ html[data-theme="dark"] .ikon-bulan {
 
 .tasbih-target-input {
   width: 5rem;
+  min-height: 44px;
   padding: 0.45rem 0.6rem;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
+  background: var(--pill);
+  border: 1px solid var(--garis-kontrol);
+  border-radius: 12px;
   color: var(--fg);
   font: inherit;
   font-variant-numeric: tabular-nums;

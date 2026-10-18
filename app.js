@@ -118,6 +118,12 @@ async function renderDaftar() {
       surahList = data.data;
     }
     const frag = document.createDocumentFragment();
+    const hero = el("section", "hero");
+    hero.append(
+      el("h1", "hero-judul", "Al-Quran"),
+      el("p", "hero-sub", "114 surat · teks Arab, transliterasi Latin, terjemahan Indonesia, dan tafsir Kemenag")
+    );
+    frag.appendChild(hero);
     const cari = document.createElement("input");
     cari.type = "search";
     cari.id = "cari-surat";
@@ -129,11 +135,16 @@ async function renderDaftar() {
     const last = getLastRead();
     if (last && last.nomor && last.nomorAyat) {
       const lanjut = el("div", "lanjutkan");
-      const a = el("a", "tombol", "Lanjutkan membaca: " + last.namaLatin + " — Ayat " + last.nomorAyat + " →");
+      const a = el("a", "tombol", "Lanjutkan membaca: " + last.namaLatin + " · Ayat " + last.nomorAyat + " →");
       a.href = "#/surat/" + last.nomor + "/" + last.nomorAyat;
       lanjut.appendChild(a);
       frag.appendChild(lanjut);
     }
+    const seksiMeta = el("p", "seksi-meta", surahList.length + " surat");
+    const seksi = el("div", "seksi-head");
+    seksi.append(el("h2", "seksi-judul", "Daftar Surat"), seksiMeta);
+    frag.appendChild(seksi);
+
     const daftar = el("div", "daftar");
     const baris = [];
     for (const s of surahList) {
@@ -143,6 +154,7 @@ async function renderDaftar() {
       kartu.appendChild(el("span", "nama-latin", s.namaLatin));
       const info = el("span", "info");
       info.append(el("span", "arti", s.arti), el("span", "jumlah", s.jumlahAyat + " ayat"));
+      if (last && last.nomor === s.nomor) info.appendChild(el("span", "terakhir", "terakhir dibaca"));
       kartu.appendChild(info);
       const nama = el("span", "nama", s.nama);
       nama.setAttribute("dir", "rtl");
@@ -167,6 +179,7 @@ async function renderDaftar() {
         if (cocok) terlihat++;
       }
       kosong.hidden = terlihat > 0;
+      seksiMeta.textContent = terlihat + " surat";
     });
 
     app.replaceChildren(frag);
@@ -291,8 +304,10 @@ function renderBookmark() {
   app.className = "view-bookmark";
   activeRender = renderBookmark;
   const list = getBookmarks();
+  const seksi = el("div", "seksi-head");
+  seksi.append(el("h2", "seksi-judul", "Bookmark"), el("p", "seksi-meta", list.length + " bookmark"));
   if (list.length === 0) {
-    app.replaceChildren(el("p", "pesan", "Belum ada bookmark."));
+    app.replaceChildren(seksi, el("p", "pesan", "Belum ada bookmark."));
     return;
   }
   const daftar = el("div", "daftar");
@@ -300,14 +315,14 @@ function renderBookmark() {
     const kartu = el("div", "kartu bookmark");
     const a = document.createElement("a");
     a.href = "#/surat/" + b.nomor + "/" + b.nomorAyat;
-    a.textContent = b.namaLatin + " — Ayat " + b.nomorAyat;
+    a.textContent = b.namaLatin + " · Ayat " + b.nomorAyat;
     kartu.appendChild(a);
     const btn = tombol("Hapus");
     btn.setAttribute("data-hapus", b.nomor + ":" + b.nomorAyat);
     kartu.appendChild(btn);
     daftar.appendChild(kartu);
   }
-  app.replaceChildren(daftar);
+  app.replaceChildren(seksi, daftar);
 }
 
 // ---- Tasbih ----
@@ -406,6 +421,9 @@ function renderTasbih() {
 
   const root = el("div", "tasbih");
 
+  const seksi = el("div", "seksi-head");
+  seksi.appendChild(el("h2", "seksi-judul", "Tasbih"));
+
   const grup = el("div", "tasbih-dzikir");
   grup.setAttribute("role", "group");
   grup.setAttribute("aria-label", "Pilih dzikir");
@@ -477,7 +495,9 @@ function renderTasbih() {
 
   const total = el("p", "tasbih-total");
 
-  root.append(grup, panggung, pesan, aksi, total);
+  const blok = el("div", "blok-biru");
+  blok.appendChild(grup);
+  root.append(seksi, blok, panggung, pesan, aksi, total);
   app.replaceChildren(root);
 
   tasbihView = {
@@ -567,7 +587,7 @@ document.addEventListener("keydown", function (e) {
   if (e.key !== " " && e.key !== "Enter") return;
   // Kontrol apa pun (tautan, tombol, input) pakai aktivasi native-nya sendiri:
   // klik hasil aktivasi itu sudah ditangani delegasi klik di atas, jadi tidak
-  // ada hitungan ganda — dan fokus di header tetap berfungsi.
+  // ada hitungan ganda - dan fokus di header tetap berfungsi.
   if (e.target instanceof Element && e.target.closest("a, button, input, select, textarea")) return;
   e.preventDefault(); // Space jangan menggulir halaman saat shortcut dipakai
   hitungTasbih();
